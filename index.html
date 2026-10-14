@@ -1770,9 +1770,14 @@
                 : minimumComfortableWidth;
             const maxSize = Math.max(minSize, Math.min(320, contentWidth));
             const size = minSize + (maxSize - minSize) * sliderPosition;
-            const columns = Math.max(1, Math.floor((contentWidth + gap) / (size + gap)));
 
             grid.style.setProperty('--poster-size', size + 'px');
+
+            // Read the browser's computed grid tracks instead of estimating columns.
+            // This keeps the label aligned with the actual rendered layout.
+            const renderedGridStyle = window.getComputedStyle(grid);
+            const trackList = renderedGridStyle.gridTemplateColumns.trim();
+            const columns = trackList ? trackList.split(/\s+/).length : 1;
             sizeValue.textContent = columns + ' across';
         }
 
