@@ -1764,17 +1764,31 @@
             const isPhone = window.matchMedia('(max-width: 500px)').matches;
             const minimumComfortableWidth = isPhone ? 90 : 120;
             const possibleColumns = Math.max(1, Math.floor((contentWidth + gap) / (minimumComfortableWidth + gap)));
-            const targetMinimumColumns = isPhone ? Math.min(3, possibleColumns) : possibleColumns;
-            const minSize = isPhone
-                ? Math.max(minimumComfortableWidth, (contentWidth - gap * (targetMinimumColumns - 1)) / targetMinimumColumns)
-                : minimumComfortableWidth;
-            const maxSize = Math.max(minSize, Math.min(320, contentWidth));
-            const size = minSize + (maxSize - minSize) * sliderPosition;
+            let size;
+
+            if (isPhone) {
+                // Give each available mobile column count an equal section of the slider.
+                // For example, on a typical phone: first third = 3 across,
+                // middle third = 2 across, final third = 1 across.
+                const maximumColumns = Math.min(3, possibleColumns);
+                const segment = Math.min(maximumColumns - 1, Math.floor(sliderPosition * maximumColumns));
+                const desiredColumns = maximumColumns - segment;
+                const segmentPosition = Math.min(1, sliderPosition * maximumColumns - segment);
+                const lowerSize = desiredColumns === maximumColumns
+                    ? minimumComfortableWidth
+                    : (contentWidth + gap) / (desiredColumns + 1) - gap + 0.5;
+                const upperSize = Math.min(320, (contentWidth + gap) / desiredColumns - gap);
+                size = lowerSize + Math.max(0, upperSize - lowerSize) * segmentPosition;
+            } else {
+                // Keep desktop sizing continuous across the available responsive range.
+                const minSize = minimumComfortableWidth;
+                const maxSize = Math.max(minSize, Math.min(320, contentWidth));
+                size = minSize + (maxSize - minSize) * sliderPosition;
+            }
 
             grid.style.setProperty('--poster-size', size + 'px');
 
-            // Read the browser's computed grid tracks instead of estimating columns.
-            // This keeps the label aligned with the actual rendered layout.
+            // Read the browser's computed grid tracks so the label matches the layout.
             const renderedGridStyle = window.getComputedStyle(grid);
             const trackList = renderedGridStyle.gridTemplateColumns.trim();
             const columns = trackList ? trackList.split(/\s+/).length : 1;
