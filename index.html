@@ -33,7 +33,7 @@
         }
         .controls {
             display: grid;
-            grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(110px, 1fr)) auto;
+            grid-template-columns: minmax(220px, 2fr) 72px repeat(4, minmax(110px, 1fr)) auto;
             gap: 8px;
         }
         input, select {
@@ -46,6 +46,23 @@
             color: #eee;
             font-size: 14px;
         }
+        .category-toggle {
+            min-width: 72px;
+            width: 72px;
+            height: 38px;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #222;
+            color: #eee;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
         .family-filter {
             min-width: 42px;
             width: 42px;
@@ -184,9 +201,11 @@
                 padding: 3px 8px;
                 font-size: 13px;
             }
-            #categoryFilter {
-                width: 145px;
-                flex: 0 0 145px;
+            #categoryToggle {
+                width: 72px;
+                flex: 0 0 72px;
+                font-size: 18px;
+                letter-spacing: -1px;
             }
             #formatFilter {
                 width: 130px;
@@ -246,9 +265,7 @@
             <h1>Sanford Library</h1>
             <div class="controls">
                 <input id="search" type="search" placeholder="Search title, category, format, HDR, audio...">
-                <select id="categoryFilter">
-                    <option value="">All Categories</option>
-                </select>
+                <button id="categoryToggle" class="category-toggle" type="button" title="Showing Movies and Series" aria-label="Showing Movies and Series">&#127916; / &#128250;</button>
                 <select id="formatFilter">
                     <option value="">All Formats</option>
                 </select>
@@ -1649,7 +1666,8 @@
     <script>
         const cards = Array.from(document.querySelectorAll('.movie-card'));
         const search = document.getElementById('search');
-        const categoryFilter = document.getElementById('categoryFilter');
+        const categoryToggle = document.getElementById('categoryToggle');
+        let categoryMode = 'both';
         const formatFilter = document.getElementById('formatFilter');
         const hdrFilter = document.getElementById('hdrFilter');
         const audioFilter = document.getElementById('audioFilter');
@@ -1670,14 +1688,20 @@
             });
         }
 
-        addFilterValues(categoryFilter, cards.map(c => c.dataset.category));
         addFilterValues(formatFilter, cards.map(c => c.dataset.format));
         addFilterValues(hdrFilter, cards.map(c => c.dataset.hdr));
         addFilterValues(audioFilter, cards.map(c => c.dataset.audio));
 
+        function cardCategoryIsMovie(value) {
+            return value.trim().toLowerCase() === 'movie';
+        }
+
+        function cardCategoryIsSeries(value) {
+            return value.trim().toLowerCase() === 'series';
+        }
+
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
-            const category = categoryFilter.value;
             const format = formatFilter.value;
             const hdr = hdrFilter.value;
             const audio = audioFilter.value;
@@ -1685,6 +1709,9 @@
 
             let visible = 0;
             cards.forEach(card => {
+                const matchesCategory = categoryMode === 'both' ||
+                    (categoryMode === 'movie' && cardCategoryIsMovie(card.dataset.category)) ||
+                    (categoryMode === 'series' && cardCategoryIsSeries(card.dataset.category));
                 const searchable = (
                     card.dataset.title + ' ' +
                     card.dataset.category + ' ' +
@@ -1693,7 +1720,6 @@
                     card.dataset.audio
                 ).toLowerCase();
                 const matchesSearch = !query || searchable.includes(query);
-                const matchesCategory = !category || card.dataset.category === category;
                 const matchesFormat = !format || card.dataset.format === format;
                 const matchesHDR = !hdr || card.dataset.hdr === hdr;
                 const matchesAudio = !audio || card.dataset.audio === audio;
@@ -1741,9 +1767,21 @@
             applyFilters();
         }
 
-        [search, categoryFilter, formatFilter, hdrFilter, audioFilter].forEach(element => {
+        [search, formatFilter, hdrFilter, audioFilter].forEach(element => {
             element.addEventListener('input', refresh);
             element.addEventListener('change', refresh);
+        });
+
+        categoryToggle.addEventListener('click', () => {
+            categoryMode = categoryMode === 'both' ? 'movie' : categoryMode === 'movie' ? 'series' : 'both';
+            const clapperboard = String.fromCodePoint(0x1F3AC);
+            const television = String.fromCodePoint(0x1F4FA);
+            const icon = categoryMode === 'both' ? clapperboard + ' / ' + television : categoryMode === 'movie' ? clapperboard : television;
+            const label = categoryMode === 'both' ? 'Showing Movies and Series' : categoryMode === 'movie' ? 'Showing Movies only' : 'Showing Series only';
+            categoryToggle.textContent = icon;
+            categoryToggle.title = label;
+            categoryToggle.setAttribute('aria-label', label);
+            refresh();
         });
 
         sortSelect.addEventListener('change', refresh);
