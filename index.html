@@ -57,7 +57,7 @@
         .publication-timestamp[hidden] { display: none; }
         .controls {
             display: grid;
-            grid-template-columns: minmax(220px, 2fr) 72px repeat(4, minmax(110px, 1fr)) auto;
+            grid-template-columns: minmax(220px, 2fr) 72px 72px repeat(3, minmax(110px, 1fr)) auto;
             gap: 8px;
         }
         input, select {
@@ -236,9 +236,17 @@
                 letter-spacing: -1px;
                 overflow: visible;
             }
-            #formatFilter {
-                width: 130px;
-                flex: 0 0 130px;
+            #formatToggle {
+                width: 72px;
+                flex: 0 0 72px;
+                height: 29px;
+                min-height: 29px;
+                padding: 2px 4px;
+                font-size: 18px;
+                line-height: 1;
+                letter-spacing: -1px;
+                overflow: visible;
+                white-space: nowrap;
             }
             #hdrFilter {
                 width: 105px;
@@ -294,16 +302,14 @@
             <div class="title-row">
                 <h1>Sanford Library</h1>
                 <div class="publication-info">
-                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 3:47 PM</span>
+                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 5:09 PM</span>
                     <button id="publicationInfoButton" class="publication-button" type="button" title="Show last publication time" aria-label="Show last publication time" aria-expanded="false">&#9881;</button>
                 </div>
             </div>
             <div class="controls">
                 <input id="search" type="search" placeholder="Search title, category, format, HDR, audio...">
                 <button id="categoryToggle" class="category-toggle" type="button" title="Showing Movies and Series" aria-label="Showing Movies and Series">&#127916; / &#128250;</button>
-                <select id="formatFilter">
-                    <option value="">All Formats</option>
-                </select>
+                <button id="formatToggle" class="category-toggle" type="button" title="Showing all formats" aria-label="Showing all formats">&#128191; / &#128433;&#65039;</button>
                 <select id="hdrFilter">
                     <option value="">All HDR</option>
                 </select>
@@ -1741,7 +1747,8 @@
         const search = document.getElementById('search');
         const categoryToggle = document.getElementById('categoryToggle');
         let categoryMode = 'both';
-        const formatFilter = document.getElementById('formatFilter');
+        const formatToggle = document.getElementById('formatToggle');
+        let formatMode = 'all';
         const hdrFilter = document.getElementById('hdrFilter');
         const durationFilter = document.getElementById('durationFilter');
         const sortSelect = document.getElementById('sortSelect');
@@ -1761,7 +1768,6 @@
             });
         }
 
-        addFilterValues(formatFilter, cards.map(c => c.dataset.format));
         addFilterValues(hdrFilter, cards.map(c => c.dataset.hdr));
 
         function cardCategoryIsMovie(value) {
@@ -1774,7 +1780,6 @@
 
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
-            const format = formatFilter.value;
             const hdr = hdrFilter.value;
             const durationRange = durationFilter.value;
             const familyOnly = familyFilter.classList.contains('active');
@@ -1792,7 +1797,12 @@
                     card.dataset.audio
                 ).toLowerCase();
                 const matchesSearch = !query || searchable.includes(query);
-                const matchesFormat = !format || card.dataset.format === format;
+                const formatValue = card.dataset.format.trim();
+                const formatLower = formatValue.toLowerCase();
+                const matchesFormat = formatMode === 'all' ||
+                    (formatMode === 'physical' && ['uhd bd 4k', 'bd 1080p', 'dvd 480p'].includes(formatLower)) ||
+                    (formatMode === 'digital' && formatLower.startsWith('plex')) ||
+                    (formatMode === '4k' && ['uhd bd 4k', 'plex 4k'].includes(formatLower));
                 const matchesHDR = !hdr || card.dataset.hdr === hdr;
                 const durationMinutes = Number(card.dataset.durationMinutes) || 0;
                 const matchesDuration = !durationRange ||
@@ -1849,10 +1859,32 @@
             applyFilters();
         }
 
-        [search, formatFilter, hdrFilter, durationFilter].forEach(element => {
+        [search, hdrFilter, durationFilter].forEach(element => {
             element.addEventListener('input', refresh);
             element.addEventListener('change', refresh);
         });
+
+        const opticalDisc = String.fromCodePoint(0x1F4BF);
+        const desktopComputer = String.fromCodePoint(0x1F5A5, 0xFE0F);
+        function updateFormatToggle() {
+            const display = formatMode === 'all' ? opticalDisc + ' / ' + desktopComputer :
+                formatMode === 'physical' ? opticalDisc :
+                formatMode === 'digital' ? desktopComputer : '4K';
+            const label = formatMode === 'all' ? 'Showing all formats' :
+                formatMode === 'physical' ? 'Showing physical media only' :
+                formatMode === 'digital' ? 'Showing Plex digital media only' : 'Showing 4K formats across physical and digital media';
+            formatToggle.textContent = display;
+            formatToggle.title = label;
+            formatToggle.setAttribute('aria-label', label);
+            formatToggle.style.color = formatMode === '4k' ? '#d6a84f' : '';
+            formatToggle.style.fontWeight = formatMode === '4k' ? '700' : '';
+        }
+        formatToggle.addEventListener('click', () => {
+            formatMode = formatMode === 'all' ? 'physical' : formatMode === 'physical' ? 'digital' : formatMode === 'digital' ? '4k' : 'all';
+            updateFormatToggle();
+            refresh();
+        });
+        updateFormatToggle();
 
         categoryToggle.addEventListener('click', () => {
             categoryMode = categoryMode === 'both' ? 'movie' : categoryMode === 'movie' ? 'series' : 'both';
