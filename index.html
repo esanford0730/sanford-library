@@ -334,7 +334,7 @@
             <div class="title-row">
                 <h1>Sanford Library</h1>
                 <div class="publication-info">
-                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 6:27 PM</span>
+                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 7:03 PM</span>
                     <button id="publicationInfoButton" class="publication-button" type="button" title="Show last publication time" aria-label="Show last publication time" aria-expanded="false">&#9881;</button>
                 </div>
             </div>
@@ -342,8 +342,8 @@
                 <input id="search" type="search" placeholder="Search title, category, format, HDR, audio...">
                 <button id="categoryToggle" class="category-toggle" type="button" title="Showing Movies and Series" aria-label="Showing Movies and Series">&#127916; / &#128250;</button>
                 <button id="formatToggle" class="category-toggle" type="button" title="Showing all formats" aria-label="Showing all formats">&#128191; / &#128421;&#65039;</button>
-                <button id="resolutionToggle" class="category-toggle text-toggle" type="button" title="Showing all resolutions" aria-label="Showing all resolutions">Res: All</button>
-                <button id="dynamicRangeToggle" class="category-toggle text-toggle" type="button" title="Showing all dynamic ranges" aria-label="Showing all dynamic ranges">DR: All</button>
+                <button id="resolutionToggle" class="category-toggle text-toggle" type="button" title="Showing all resolutions; click to show 4K titles only" aria-label="Showing all resolutions; click to show 4K titles only">4K</button>
+                <button id="dynamicRangeToggle" class="category-toggle text-toggle" type="button" title="Showing all dynamic ranges; click to show HDR titles only" aria-label="Showing all dynamic ranges; click to show HDR titles only">HDR</button>
                 <select id="durationFilter">
                     <option value="">All Durations</option>
                     <option value="under90">Under 90 min</option>
@@ -1916,11 +1916,11 @@
 
         function updateResolutionToggle() {
             const label = resolutionMode === 'all' ? 'Showing all resolutions' : 'Showing 4K titles only';
-            resolutionToggle.textContent = resolutionMode === 'all' ? 'Res: All' : '4K';
-            resolutionToggle.title = label;
-            resolutionToggle.setAttribute('aria-label', label);
-            resolutionToggle.style.color = resolutionMode === '4k' ? '#d6a84f' : '';
-            resolutionToggle.style.fontWeight = resolutionMode === '4k' ? '700' : '';
+            resolutionToggle.textContent = '4K';
+            resolutionToggle.title = resolutionMode === 'all' ? 'Showing all resolutions; click to show 4K titles only' : 'Showing 4K titles only; click to show all resolutions';
+            resolutionToggle.setAttribute('aria-label', resolutionToggle.title);
+            resolutionToggle.style.color = resolutionMode === '4k' ? '#d6a84f' : '#888';
+            resolutionToggle.style.fontWeight = resolutionMode === '4k' ? '700' : '400';
         }
         resolutionToggle.addEventListener('click', () => {
             resolutionMode = resolutionMode === 'all' ? '4k' : 'all';
@@ -1930,11 +1930,13 @@
         updateResolutionToggle();
 
         function updateDynamicRangeToggle() {
-            const display = dynamicRangeMode === 'all' ? 'DR: All' : dynamicRangeMode === 'hdr' ? 'HDR' : 'SDR';
-            const label = dynamicRangeMode === 'all' ? 'Showing all dynamic ranges' : dynamicRangeMode === 'hdr' ? 'Showing HDR titles only' : 'Showing titles with no HDR metadata (SDR)';
+            const display = dynamicRangeMode === 'sdr' ? 'SDR' : 'HDR';
+            const label = dynamicRangeMode === 'all' ? 'Showing all dynamic ranges; click to show HDR titles only' : dynamicRangeMode === 'hdr' ? 'Showing HDR titles only; click to show titles with no HDR metadata (SDR)' : 'Showing titles with no HDR metadata (SDR); click to show all dynamic ranges';
             dynamicRangeToggle.textContent = display;
             dynamicRangeToggle.title = label;
             dynamicRangeToggle.setAttribute('aria-label', label);
+            dynamicRangeToggle.style.color = dynamicRangeMode === 'all' ? '#888' : '';
+            dynamicRangeToggle.style.fontWeight = dynamicRangeMode === 'all' ? '400' : '700';
         }
         dynamicRangeToggle.addEventListener('click', () => {
             dynamicRangeMode = dynamicRangeMode === 'all' ? 'hdr' : dynamicRangeMode === 'hdr' ? 'sdr' : 'all';
