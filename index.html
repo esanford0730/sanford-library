@@ -340,7 +340,7 @@
             <div class="title-row">
                 <h1>Sanford Library</h1>
                 <div class="publication-info">
-                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 10:59 PM</span>
+                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 11:13 PM</span>
                     <button id="publicationInfoButton" class="publication-button" type="button" title="Show last publication time" aria-label="Show last publication time" aria-expanded="false">&#9881;</button>
                 </div>
             </div>
@@ -1843,7 +1843,7 @@
                 const formatIs4K = ['uhd bd 4k', 'plex 4k'].includes(formatLower);
                 const matchesResolution = resolutionMode === 'all' || (resolutionMode === '4k' && formatIs4K);
                 const hdrValue = (card.dataset.hdr || '').trim();
-                const matchesDynamicRange = dynamicRangeMode === 'all' || (dynamicRangeMode === 'hdr' && hdrValue !== '') || (dynamicRangeMode === 'sdr' && hdrValue === '');
+                const matchesDynamicRange = dynamicRangeMode === 'all' || (dynamicRangeMode === 'hdr' && hdrValue !== '');
                 const durationMinutes = Number(card.dataset.durationMinutes) || 0;
                 const matchesDuration = !durationRange ||
                     (durationRange === 'under90' && durationMinutes > 0 && durationMinutes < 90) ||
@@ -1936,8 +1936,8 @@
         updateResolutionToggle();
 
         function updateDynamicRangeToggle() {
-            const display = dynamicRangeMode === 'sdr' ? 'SDR' : 'HDR';
-            const label = dynamicRangeMode === 'all' ? 'Showing all dynamic ranges; click to show HDR titles only' : dynamicRangeMode === 'hdr' ? 'Showing HDR titles only; click to show titles with no HDR metadata (SDR)' : 'Showing titles with no HDR metadata (SDR); click to show all dynamic ranges';
+            const display = 'HDR';
+            const label = dynamicRangeMode === 'all' ? 'Showing all titles; click to show HDR titles only' : 'Showing HDR titles only; click to show all titles';
             dynamicRangeToggle.textContent = display;
             dynamicRangeToggle.title = label;
             dynamicRangeToggle.setAttribute('aria-label', label);
@@ -1945,7 +1945,7 @@
             dynamicRangeToggle.style.fontWeight = dynamicRangeMode === 'all' ? '400' : '700';
         }
         dynamicRangeToggle.addEventListener('click', () => {
-            dynamicRangeMode = dynamicRangeMode === 'all' ? 'hdr' : dynamicRangeMode === 'hdr' ? 'sdr' : 'all';
+            dynamicRangeMode = dynamicRangeMode === 'all' ? 'hdr' : 'all';
             updateDynamicRangeToggle();
             refresh();
         });
