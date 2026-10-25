@@ -57,7 +57,7 @@
         .publication-timestamp[hidden] { display: none; }
         .controls {
             display: grid;
-            grid-template-columns: minmax(220px, 2fr) 72px 72px repeat(3, minmax(110px, 1fr)) auto;
+            grid-template-columns: minmax(220px, 2fr) 72px 72px 88px 78px minmax(110px, 1fr) minmax(110px, 1fr) auto;
             gap: 8px;
         }
         input, select {
@@ -87,6 +87,14 @@
             white-space: nowrap;
         }
 
+        .text-toggle {
+            width: 100%;
+            min-width: 0;
+            height: 38px;
+            padding: 4px 6px;
+            font-size: 13px;
+            letter-spacing: 0;
+        }
         .family-filter {
             min-width: 42px;
             width: 42px;
@@ -256,9 +264,25 @@
                 overflow: visible;
                 white-space: nowrap;
             }
-            #hdrFilter {
-                width: 105px;
-                flex: 0 0 105px;
+            #resolutionToggle {
+                width: 82px;
+                flex: 0 0 82px;
+                height: 29px;
+                min-height: 29px;
+                padding: 2px 4px;
+                font-size: 12px;
+                line-height: 1;
+                letter-spacing: 0;
+            }
+            #dynamicRangeToggle {
+                width: 72px;
+                flex: 0 0 72px;
+                height: 29px;
+                min-height: 29px;
+                padding: 2px 4px;
+                font-size: 12px;
+                line-height: 1;
+                letter-spacing: 0;
             }
             #durationFilter {
                 width: 145px;
@@ -310,7 +334,7 @@
             <div class="title-row">
                 <h1>Sanford Library</h1>
                 <div class="publication-info">
-                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 5:26 PM</span>
+                    <span id="publicationTimestamp" class="publication-timestamp" hidden>Updated Oct 24, 2026 6:27 PM</span>
                     <button id="publicationInfoButton" class="publication-button" type="button" title="Show last publication time" aria-label="Show last publication time" aria-expanded="false">&#9881;</button>
                 </div>
             </div>
@@ -318,9 +342,8 @@
                 <input id="search" type="search" placeholder="Search title, category, format, HDR, audio...">
                 <button id="categoryToggle" class="category-toggle" type="button" title="Showing Movies and Series" aria-label="Showing Movies and Series">&#127916; / &#128250;</button>
                 <button id="formatToggle" class="category-toggle" type="button" title="Showing all formats" aria-label="Showing all formats">&#128191; / &#128421;&#65039;</button>
-                <select id="hdrFilter">
-                    <option value="">All HDR</option>
-                </select>
+                <button id="resolutionToggle" class="category-toggle text-toggle" type="button" title="Showing all resolutions" aria-label="Showing all resolutions">Res: All</button>
+                <button id="dynamicRangeToggle" class="category-toggle text-toggle" type="button" title="Showing all dynamic ranges" aria-label="Showing all dynamic ranges">DR: All</button>
                 <select id="durationFilter">
                     <option value="">All Durations</option>
                     <option value="under90">Under 90 min</option>
@@ -1757,7 +1780,10 @@
         let categoryMode = 'both';
         const formatToggle = document.getElementById('formatToggle');
         let formatMode = 'all';
-        const hdrFilter = document.getElementById('hdrFilter');
+        const resolutionToggle = document.getElementById('resolutionToggle');
+        let resolutionMode = 'all';
+        const dynamicRangeToggle = document.getElementById('dynamicRangeToggle');
+        let dynamicRangeMode = 'all';
         const durationFilter = document.getElementById('durationFilter');
         const sortSelect = document.getElementById('sortSelect');
         const familyFilter = document.getElementById('familyFilter');
@@ -1776,7 +1802,6 @@
             });
         }
 
-        addFilterValues(hdrFilter, cards.map(c => c.dataset.hdr));
 
         function cardCategoryIsMovie(value) {
             return value.trim().toLowerCase() === 'movie';
@@ -1788,7 +1813,6 @@
 
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
-            const hdr = hdrFilter.value;
             const durationRange = durationFilter.value;
             const familyOnly = familyFilter.classList.contains('active');
 
@@ -1809,16 +1833,18 @@
                 const formatLower = formatValue.toLowerCase();
                 const matchesFormat = formatMode === 'all' ||
                     (formatMode === 'physical' && ['uhd bd 4k', 'bd 1080p', 'dvd 480p'].includes(formatLower)) ||
-                    (formatMode === 'digital' && formatLower.startsWith('plex')) ||
-                    (formatMode === '4k' && ['uhd bd 4k', 'plex 4k'].includes(formatLower));
-                const matchesHDR = !hdr || card.dataset.hdr === hdr;
+                    (formatMode === 'digital' && formatLower.startsWith('plex'));
+                const formatIs4K = ['uhd bd 4k', 'plex 4k'].includes(formatLower);
+                const matchesResolution = resolutionMode === 'all' || (resolutionMode === '4k' && formatIs4K);
+                const hdrValue = (card.dataset.hdr || '').trim();
+                const matchesDynamicRange = dynamicRangeMode === 'all' || (dynamicRangeMode === 'hdr' && hdrValue !== '') || (dynamicRangeMode === 'sdr' && hdrValue === '');
                 const durationMinutes = Number(card.dataset.durationMinutes) || 0;
                 const matchesDuration = !durationRange ||
                     (durationRange === 'under90' && durationMinutes > 0 && durationMinutes < 90) ||
                     (durationRange === '90to120' && durationMinutes >= 90 && durationMinutes <= 120) ||
                     (durationRange === 'over120' && durationMinutes > 120);
                 const matchesFamily = !familyOnly || card.dataset.family === 'true';
-                const show = matchesSearch && matchesCategory && matchesFormat && matchesHDR && matchesDuration && matchesFamily;
+                const show = matchesSearch && matchesCategory && matchesFormat && matchesResolution && matchesDynamicRange && matchesDuration && matchesFamily;
                 card.classList.toggle('hidden', !show);
                 if (show) visible++;
             });
@@ -1867,7 +1893,7 @@
             applyFilters();
         }
 
-        [search, hdrFilter, durationFilter].forEach(element => {
+        [search, durationFilter].forEach(element => {
             element.addEventListener('input', refresh);
             element.addEventListener('change', refresh);
         });
@@ -1875,24 +1901,47 @@
         const opticalDisc = String.fromCodePoint(0x1F4BF);
         const desktopComputer = String.fromCodePoint(0x1F5A5, 0xFE0F);
         function updateFormatToggle() {
-            const display = formatMode === 'all' ? opticalDisc + ' / ' + desktopComputer :
-                formatMode === 'physical' ? opticalDisc :
-                formatMode === 'digital' ? desktopComputer : '4K';
-            const label = formatMode === 'all' ? 'Showing all formats' :
-                formatMode === 'physical' ? 'Showing physical media only' :
-                formatMode === 'digital' ? 'Showing Plex digital media only' : 'Showing 4K formats across physical and digital media';
+            const display = formatMode === 'all' ? opticalDisc + ' / ' + desktopComputer : formatMode === 'physical' ? opticalDisc : desktopComputer;
+            const label = formatMode === 'all' ? 'Showing all formats' : formatMode === 'physical' ? 'Showing physical media only' : 'Showing Plex digital media only';
             formatToggle.textContent = display;
             formatToggle.title = label;
             formatToggle.setAttribute('aria-label', label);
-            formatToggle.style.color = formatMode === '4k' ? '#d6a84f' : '';
-            formatToggle.style.fontWeight = formatMode === '4k' ? '700' : '';
         }
         formatToggle.addEventListener('click', () => {
-            formatMode = formatMode === 'all' ? 'physical' : formatMode === 'physical' ? 'digital' : formatMode === 'digital' ? '4k' : 'all';
+            formatMode = formatMode === 'all' ? 'physical' : formatMode === 'physical' ? 'digital' : 'all';
             updateFormatToggle();
             refresh();
         });
         updateFormatToggle();
+
+        function updateResolutionToggle() {
+            const label = resolutionMode === 'all' ? 'Showing all resolutions' : 'Showing 4K titles only';
+            resolutionToggle.textContent = resolutionMode === 'all' ? 'Res: All' : '4K';
+            resolutionToggle.title = label;
+            resolutionToggle.setAttribute('aria-label', label);
+            resolutionToggle.style.color = resolutionMode === '4k' ? '#d6a84f' : '';
+            resolutionToggle.style.fontWeight = resolutionMode === '4k' ? '700' : '';
+        }
+        resolutionToggle.addEventListener('click', () => {
+            resolutionMode = resolutionMode === 'all' ? '4k' : 'all';
+            updateResolutionToggle();
+            refresh();
+        });
+        updateResolutionToggle();
+
+        function updateDynamicRangeToggle() {
+            const display = dynamicRangeMode === 'all' ? 'DR: All' : dynamicRangeMode === 'hdr' ? 'HDR' : 'SDR';
+            const label = dynamicRangeMode === 'all' ? 'Showing all dynamic ranges' : dynamicRangeMode === 'hdr' ? 'Showing HDR titles only' : 'Showing titles with no HDR metadata (SDR)';
+            dynamicRangeToggle.textContent = display;
+            dynamicRangeToggle.title = label;
+            dynamicRangeToggle.setAttribute('aria-label', label);
+        }
+        dynamicRangeToggle.addEventListener('click', () => {
+            dynamicRangeMode = dynamicRangeMode === 'all' ? 'hdr' : dynamicRangeMode === 'hdr' ? 'sdr' : 'all';
+            updateDynamicRangeToggle();
+            refresh();
+        });
+        updateDynamicRangeToggle();
 
         categoryToggle.addEventListener('click', () => {
             categoryMode = categoryMode === 'both' ? 'movie' : categoryMode === 'movie' ? 'series' : 'both';
