@@ -1,6 +1,6 @@
 ﻿{
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T23:51:48",
+  "generatedAt": "2026-10-25T17:16:41",
   "count": 119,
   "items": [
     {"id":"sl-6D4E624E","title":"28 Days Later","sortTitle":"28 Days Later","category":"Movie","format":"UHD BD 4k","hdr":"Dolby Vision","audio":"Dolby Atmos","duration":"113 min","durationMinutes":113,"addedDate":"2026-09-03","familyApproved":false,"order":1},
@@ -41,7 +41,7 @@
     {"id":"sl-3F81AC9B","title":"Hercules","sortTitle":"Hercules","category":"Movie","format":"Plex 1080p","hdr":"","audio":"AAC 2.0","duration":"93 min","durationMinutes":93,"addedDate":"2025-12-06","familyApproved":true,"order":36},
     {"id":"sl-3EF0F256","title":"Howl's Moving Castle","sortTitle":"Howl's Moving Castle","category":"Movie","format":"BD 1080p","hdr":"","audio":"DTS-HD 5.1","duration":"119 min","durationMinutes":119,"addedDate":"2025-12-31","familyApproved":false,"order":37},
     {"id":"sl-5A689D07","title":"Raiders of the Lost Ark","sortTitle":"Indiana Jones 1","category":"Movie","format":"UHD BD 4k","hdr":"Dolby Vision","audio":"Dolby Atmos","duration":"115 min","durationMinutes":115,"addedDate":"2025-08-15","familyApproved":false,"order":38},
-    {"id":"sl-398A1E92","title":"Temple of Doom","sortTitle":"Indiana Jones 2","category":"Movie","format":"BD 1080p","hdr":"","audio":"DTS-HD 5.1","duration":"118 min","durationMinutes":118,"addedDate":"2018-02-13","familyApproved":false,"order":39},
+    {"id":"sl-398A1E92","title":"Temple of Doom","sortTitle":"Indiana Jones 2","category":"Movie","format":"UHD BD 4k","hdr":"Dolby Vision","audio":"Dolby Atmos","duration":"118 min","durationMinutes":118,"addedDate":"2026-10-26","familyApproved":false,"order":39},
     {"id":"sl-640F9859","title":"The Last Crusade","sortTitle":"Indiana Jones 3","category":"Movie","format":"UHD BD 4k","hdr":"Dolby Vision","audio":"Dolby Atmos","duration":"126 min","durationMinutes":126,"addedDate":"2022-12-21","familyApproved":false,"order":40},
     {"id":"sl-4A317740","title":"Interstellar","sortTitle":"Interstellar","category":"Movie","format":"UHD BD 4k","hdr":"HDR10","audio":"DTS-HD 5.1","duration":"169 min","durationMinutes":169,"addedDate":"2025-11-30","familyApproved":false,"order":41},
     {"id":"sl-3AED9D60","title":"The Iron Giant","sortTitle":"Iron Giant","category":"Movie","format":"Plex 1080p","hdr":"","audio":"AAC 5.1","duration":"89 min","durationMinutes":89,"addedDate":"2025-12-06","familyApproved":true,"order":42},
